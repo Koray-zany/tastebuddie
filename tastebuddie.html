@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TasteBuddie — Your Meal Plan. Your Goals. Your Cravings.</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,700;0,900;1,700&family=Plus+Jakarta+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --green:   #1a4a2e;
+  --green2:  #2d6b45;
+  --lime:    #7eb83a;
+  --orange:  #f07d2a;
+  --orange2: #e06520;
+  --cream:   #faf6ef;
+  --cream2:  #f2ebe0;
+  --brown:   #3d2b1f;
+  --muted:   #7a6a5a;
+  --border:  #e0d5c5;
+  --white:   #ffffff;
+  --card:    #ffffff;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--cream);color:var(--brown);font-family:'Plus Jakarta Sans',sans-serif;font-weight:400;line-height:1.6;overflow-x:hidden}
+
+/* ── NAV ─────────────────────────────── */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:1.2rem 4rem;display:flex;justify-content:space-between;align-items:center;transition:all .3s}
+nav.scrolled{background:rgba(250,246,239,.96);border-bottom:1px solid var(--border);backdrop-filter:blur(12px)}
+.nav-logo{font-family:'Fraunces',serif;font-size:1.4rem;font-weight:900;color:var(--green);text-decoration:none;display:flex;align-items:center;gap:.4rem}
+.nav-logo span{color:var(--orange)}
+.nav-links{display:flex;gap:2rem;list-style:none;align-items:center}
+.nav-links a{font-size:.85rem;color:var(--muted);text-decoration:none;font-weight:500;transition:color .2s}
+.nav-links a:hover{color:var(--green)}
+.nav-cta{background:var(--green);color:var(--white);font-size:.82rem;font-weight:600;padding:.65rem 1.4rem;border-radius:100px;text-decoration:none;transition:all .2s;display:flex;align-items:center;gap:.5rem}
+.nav-cta:hover{background:var(--green2);transform:translateY(-1px)}
+.hamburger{display:none;flex-direction:column;gap:5px;background:none;border:none;cursor:pointer;padding:4px}
+.hamburger span{display:block;width:22px;height:2px;background:var(--brown);transition:all .3s}
+.hamburger.open span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+.hamburger.open span:nth-child(2){opacity:0}
+.hamburger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+.mobile-nav{display:none;position:fixed;inset:0;background:var(--cream);z-index:99;flex-direction:column;justify-content:center;align-items:center;gap:2rem}
+.mobile-nav.open{display:flex}
+.mobile-nav a{font-family:'Fraunces',serif;font-size:1.8rem;font-weight:700;color:var(--brown);text-decoration:none;transition:color .2s}
+.mobile-nav a:hover{color:var(--green)}
+.mobile-nav-close{position:absolute;top:1.5rem;right:1.5rem;background:none;border:none;font-size:2rem;color:var(--muted);cursor:pointer}
+
+/* ── HERO ────────────────────────────── */
+#hero{min-height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:8rem 4rem 5rem;position:relative;overflow:hidden;background:var(--green)}
+.hero-blob{position:absolute;border-radius:50%;filter:blur(80px);opacity:.25}
+.hero-blob-1{width:600px;height:600px;background:#7eb83a;top:-200px;right:-150px}
+.hero-blob-2{width:400px;height:400px;background:#f07d2a;bottom:-100px;left:-100px}
+.hero-emoji-float{position:absolute;font-size:2.5rem;animation:floatEmoji 6s ease-in-out infinite;opacity:.6}
+.hero-emoji-float:nth-child(1){top:15%;left:8%;animation-delay:0s}
+.hero-emoji-float:nth-child(2){top:20%;right:10%;animation-delay:1s}
+.hero-emoji-float:nth-child(3){bottom:25%;left:6%;animation-delay:2s}
+.hero-emoji-float:nth-child(4){bottom:20%;right:8%;animation-delay:3s}
+.hero-emoji-float:nth-child(5){top:55%;left:4%;animation-delay:1.5s}
+.hero-tag{font-family:'DM Mono',monospace;font-size:.72rem;color:var(--lime);letter-spacing:.2em;text-transform:uppercase;margin-bottom:1.5rem;opacity:0;animation:fadeUp .8s ease .2s forwards;position:relative;z-index:2}
+.hero-title{font-family:'Fraunces',serif;font-size:clamp(44px,7vw,100px);font-weight:900;line-height:1;letter-spacing:-.03em;color:var(--white);margin-bottom:1.5rem;opacity:0;animation:fadeUp .8s ease .4s forwards;position:relative;z-index:2}
+.hero-title em{font-style:italic;color:var(--lime)}
+.hero-sub{font-size:clamp(1rem,2vw,1.2rem);color:rgba(255,255,255,.75);max-width:600px;line-height:1.7;margin-bottom:3rem;opacity:0;animation:fadeUp .8s ease .6s forwards;position:relative;z-index:2}
+.hero-actions{display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;opacity:0;animation:fadeUp .8s ease .8s forwards;position:relative;z-index:2}
+.btn-wa{display:inline-flex;align-items:center;gap:.75rem;background:#25d366;color:#fff;font-weight:700;font-size:1rem;padding:1.1rem 2.2rem;border-radius:100px;text-decoration:none;transition:all .2s;box-shadow:0 8px 30px rgba(37,211,102,.35)}
+.btn-wa:hover{transform:translateY(-2px);box-shadow:0 12px 40px rgba(37,211,102,.45)}
+.btn-wa-icon{font-size:1.3rem}
+.btn-ghost{display:inline-flex;align-items:center;gap:.75rem;border:1.5px solid rgba(255,255,255,.35);color:rgba(255,255,255,.85);font-weight:500;font-size:.9rem;padding:1.1rem 2rem;border-radius:100px;text-decoration:none;transition:all .2s}
+.btn-ghost:hover{border-color:rgba(255,255,255,.7);color:#fff}
+.hero-social-proof{position:relative;z-index:2;margin-top:4rem;display:flex;align-items:center;gap:1.5rem;opacity:0;animation:fadeIn 1s ease 1.2s forwards;flex-wrap:wrap;justify-content:center}
+.proof-avatars{display:flex}
+.proof-avatars span{width:36px;height:36px;border-radius:50%;border:2px solid var(--green);background:var(--lime);display:flex;align-items:center;justify-content:center;font-size:1rem;margin-left:-8px}
+.proof-avatars span:first-child{margin-left:0}
+.proof-text{font-size:.85rem;color:rgba(255,255,255,.7)}
+.proof-text strong{color:var(--white)}
+
+/* ── MARQUEE ─────────────────────────── */
+.marquee-wrap{overflow:hidden;background:var(--orange);padding:.9rem 0;border-top:2px solid var(--orange2);border-bottom:2px solid var(--orange2)}
+.marquee{display:flex;gap:2.5rem;white-space:nowrap;animation:marquee 22s linear infinite}
+.marquee-item{font-family:'Fraunces',serif;font-size:1rem;font-weight:700;color:var(--white);flex-shrink:0;display:flex;align-items:center;gap:.75rem}
+.marquee-item span{opacity:.6}
+
+/* ── FOR WHO ─────────────────────────── */
+#forwho{padding:8rem 4rem;background:var(--cream)}
+.section-eyebrow{font-family:'DM Mono',monospace;font-size:.7rem;color:var(--orange);letter-spacing:.25em;text-transform:uppercase;margin-bottom:1rem;display:flex;align-items:center;gap:.75rem}
+.section-eyebrow::before{content:'';display:block;width:24px;height:2px;background:var(--orange)}
+.section-title{font-family:'Fraunces',serif;font-size:clamp(32px,5vw,62px);font-weight:900;line-height:1.05;letter-spacing:-.02em;margin-bottom:1rem;color:var(--brown)}
+.section-title em{font-style:italic;color:var(--green)}
+.personas-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;margin-top:4rem}
+.persona-card{background:var(--white);border-radius:20px;padding:2.2rem;border:1.5px solid var(--border);transition:all .3s;cursor:default;position:relative;overflow:hidden}
+.persona-card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,var(--green),var(--green2));opacity:0;transition:opacity .3s;border-radius:18px}
+.persona-card:hover::before{opacity:1}
+.persona-card:hover{transform:translateY(-4px);box-shadow:0 20px 60px rgba(26,74,46,.2);border-color:var(--green)}
+.persona-card:hover .persona-emoji,.persona-card:hover .persona-name,.persona-card:hover .persona-desc,.persona-card:hover .persona-tags span{position:relative;z-index:1}
+.persona-card:hover .persona-name{color:var(--white)}
+.persona-card:hover .persona-desc{color:rgba(255,255,255,.8)}
+.persona-card:hover .persona-tags span{border-color:rgba(255,255,255,.3);color:rgba(255,255,255,.8)}
+.persona-emoji{font-size:2.5rem;margin-bottom:1.2rem;display:block;position:relative;z-index:1}
+.persona-name{font-family:'Fraunces',serif;font-size:1.25rem;font-weight:700;color:var(--brown);margin-bottom:.5rem;position:relative;z-index:1;transition:color .3s}
+.persona-desc{font-size:.9rem;color:var(--muted);line-height:1.6;margin-bottom:1.2rem;position:relative;z-index:1;transition:color .3s}
+.persona-tags{display:flex;flex-wrap:wrap;gap:.5rem;position:relative;z-index:1}
+.persona-tags span{font-family:'DM Mono',monospace;font-size:.65rem;color:var(--muted);border:1px solid var(--border);padding:.2rem .6rem;border-radius:100px;transition:all .3s}
+
+/* ── HOW IT WORKS ────────────────────── */
+#howitworks{padding:8rem 4rem;background:var(--cream2)}
+.hiw-grid{display:grid;grid-template-columns:1fr 1fr;gap:6rem;align-items:center;margin-top:4rem}
+.hiw-steps{display:flex;flex-direction:column;gap:2rem}
+.hiw-step{display:flex;gap:1.5rem;align-items:flex-start;padding:1.5rem;border-radius:16px;transition:background .2s;cursor:default}
+.hiw-step:hover{background:rgba(255,255,255,.7)}
+.step-num{width:44px;height:44px;border-radius:50%;background:var(--green);color:var(--white);font-family:'Fraunces',serif;font-size:1.1rem;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.step-title{font-family:'Fraunces',serif;font-size:1.15rem;font-weight:700;color:var(--brown);margin-bottom:.4rem}
+.step-desc{font-size:.9rem;color:var(--muted);line-height:1.6}
+.hiw-visual{background:var(--green);border-radius:28px;padding:2.5rem;position:relative;overflow:hidden}
+.chat-bubble{background:rgba(255,255,255,.12);border-radius:16px;padding:1rem 1.2rem;margin-bottom:.75rem;max-width:85%}
+.chat-bubble.bot{background:rgba(255,255,255,.18)}
+.chat-bubble.user{background:var(--orange);margin-left:auto}
+.chat-bubble p{font-size:.88rem;color:var(--white);line-height:1.5}
+.chat-label{font-family:'DM Mono',monospace;font-size:.6rem;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.3rem}
+.chat-header{display:flex;align-items:center;gap:.75rem;margin-bottom:1.5rem;padding-bottom:1rem;border-bottom:1px solid rgba(255,255,255,.1)}
+.chat-avatar{width:36px;height:36px;background:var(--lime);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.1rem}
+.chat-name{font-size:.9rem;font-weight:600;color:var(--white)}
+.chat-status{font-family:'DM Mono',monospace;font-size:.62rem;color:var(--lime);letter-spacing:.05em}
+
+/* ── FOOD COVERAGE ───────────────────── */
+#food{padding:8rem 4rem;background:var(--cream)}
+.food-grid{display:grid;grid-template-columns:1fr 1fr;gap:2rem;margin-top:4rem}
+.food-panel{border-radius:24px;padding:3rem;position:relative;overflow:hidden}
+.food-panel.nigerian{background:var(--green)}
+.food-panel.international{background:var(--brown)}
+.food-panel-label{font-family:'DM Mono',monospace;font-size:.7rem;color:rgba(255,255,255,.5);letter-spacing:.2em;text-transform:uppercase;margin-bottom:.75rem}
+.food-panel-title{font-family:'Fraunces',serif;font-size:2rem;font-weight:900;color:var(--white);margin-bottom:1.5rem;line-height:1.1}
+.food-items{display:flex;flex-wrap:wrap;gap:.5rem}
+.food-item{background:rgba(255,255,255,.12);color:rgba(255,255,255,.9);font-size:.82rem;padding:.4rem .9rem;border-radius:100px;border:1px solid rgba(255,255,255,.15);transition:background .2s}
+.food-item:hover{background:rgba(255,255,255,.22)}
+.food-big-emoji{position:absolute;right:1.5rem;top:1.5rem;font-size:4rem;opacity:.2}
+
+/* ── PLANS ───────────────────────────── */
+#plans{padding:8rem 4rem;background:var(--cream2)}
+.plans-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.2rem;margin-top:4rem}
+.plan-card{background:var(--white);border-radius:20px;padding:2rem;border:1.5px solid var(--border);text-align:center;transition:all .3s;cursor:default}
+.plan-card:hover{transform:translateY(-5px);border-color:var(--orange);box-shadow:0 20px 50px rgba(240,125,42,.15)}
+.plan-icon{font-size:2.5rem;margin-bottom:1rem;display:block}
+.plan-name{font-family:'Fraunces',serif;font-size:1.2rem;font-weight:700;color:var(--brown);margin-bottom:.5rem}
+.plan-desc{font-size:.85rem;color:var(--muted);line-height:1.6}
+
+/* ── SAMPLE PLAN ─────────────────────── */
+#sample{padding:8rem 4rem;background:var(--green)}
+.sample-inner{display:grid;grid-template-columns:1fr 1.4fr;gap:6rem;align-items:center}
+.sample-label{font-family:'DM Mono',monospace;font-size:.7rem;color:var(--lime);letter-spacing:.2em;text-transform:uppercase;margin-bottom:1rem}
+.sample-title{font-family:'Fraunces',serif;font-size:clamp(32px,4vw,54px);font-weight:900;color:var(--white);line-height:1.1;margin-bottom:1.5rem}
+.sample-desc{font-size:1rem;color:rgba(255,255,255,.7);line-height:1.7;margin-bottom:2rem}
+.sample-card{background:rgba(255,255,255,.08);border-radius:20px;padding:2rem;border:1px solid rgba(255,255,255,.12)}
+.sample-day{font-family:'DM Mono',monospace;font-size:.7rem;color:var(--lime);letter-spacing:.15em;text-transform:uppercase;margin-bottom:1.5rem}
+.meal-row{display:flex;justify-content:space-between;align-items:center;padding:.9rem 0;border-bottom:1px solid rgba(255,255,255,.08)}
+.meal-row:last-child{border-bottom:none}
+.meal-label{font-family:'DM Mono',monospace;font-size:.65rem;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.2rem}
+.meal-name{font-size:.95rem;color:var(--white);font-weight:500}
+.meal-cal{font-family:'DM Mono',monospace;font-size:.75rem;color:var(--lime);text-align:right}
+.macro-bar{display:flex;gap:.5rem;margin-top:1.5rem;background:rgba(255,255,255,.06);border-radius:100px;padding:.6rem 1rem}
+.macro-item{flex:1;text-align:center}
+.macro-val{font-family:'Fraunces',serif;font-size:1rem;font-weight:700;color:var(--lime)}
+.macro-lbl{font-family:'DM Mono',monospace;font-size:.6rem;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.08em}
+
+/* ── PRICING ─────────────────────────── */
+#pricing{padding:8rem 4rem;background:var(--cream)}
+.pricing-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;margin-top:4rem}
+.pricing-card{background:var(--white);border-radius:24px;padding:2.5rem;border:1.5px solid var(--border);position:relative;transition:all .3s}
+.pricing-card.popular{background:var(--green);border-color:var(--green)}
+.pricing-card.popular *{color:var(--white) !important}
+.pricing-card.popular .pricing-border{border-color:rgba(255,255,255,.15) !important}
+.pricing-card.popular .pricing-feature{color:rgba(255,255,255,.8) !important}
+.pricing-card:hover{transform:translateY(-4px);box-shadow:0 20px 60px rgba(0,0,0,.1)}
+.popular-badge{position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--orange);color:var(--white);font-family:'DM Mono',monospace;font-size:.65rem;font-weight:500;padding:.3rem 1rem;border-radius:100px;letter-spacing:.1em;text-transform:uppercase;white-space:nowrap}
+.pricing-tier{font-family:'DM Mono',monospace;font-size:.7rem;color:var(--muted);letter-spacing:.15em;text-transform:uppercase;margin-bottom:.5rem}
+.pricing-price{font-family:'Fraunces',serif;font-size:3rem;font-weight:900;color:var(--brown);line-height:1;margin-bottom:.3rem}
+.pricing-price span{font-size:1rem;font-weight:400}
+.pricing-desc{font-size:.85rem;color:var(--muted);margin-bottom:2rem}
+.pricing-border{border-top:1px solid var(--border);margin:1.5rem 0}
+.pricing-features{display:flex;flex-direction:column;gap:.75rem;margin-bottom:2rem}
+.pricing-feature{font-size:.88rem;color:var(--brown);display:flex;align-items:center;gap:.6rem}
+.pricing-feature::before{content:'✓';color:var(--lime);font-weight:700;flex-shrink:0}
+.pricing-feature.off{color:var(--muted)}
+.pricing-feature.off::before{content:'✗';color:var(--border)}
+.btn-green{display:block;text-align:center;background:var(--green);color:var(--white);font-weight:600;font-size:.9rem;padding:1rem;border-radius:100px;text-decoration:none;transition:all .2s}
+.btn-green:hover{background:var(--green2);transform:translateY(-1px)}
+.btn-white{display:block;text-align:center;background:var(--white);color:var(--green);font-weight:600;font-size:.9rem;padding:1rem;border-radius:100px;text-decoration:none;transition:all .2s;border:2px solid rgba(255,255,255,.3)}
+.btn-white:hover{background:rgba(255,255,255,.9)}
+.btn-outline-green{display:block;text-align:center;border:1.5px solid var(--border);color:var(--brown);font-weight:600;font-size:.9rem;padding:1rem;border-radius:100px;text-decoration:none;transition:all .2s}
+.btn-outline-green:hover{border-color:var(--green);color:var(--green)}
+
+/* ── TESTIMONIALS ────────────────────── */
+#testimonials{padding:8rem 4rem;background:var(--cream2)}
+.testi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;margin-top:4rem}
+.testi-card{background:var(--white);border-radius:20px;padding:2rem;border:1.5px solid var(--border)}
+.testi-stars{font-size:1rem;margin-bottom:1rem;letter-spacing:.1em}
+.testi-text{font-size:.95rem;color:var(--brown);line-height:1.7;margin-bottom:1.5rem;font-style:italic}
+.testi-author{display:flex;align-items:center;gap:.75rem}
+.testi-avatar{width:38px;height:38px;border-radius:50%;background:var(--cream2);display:flex;align-items:center;justify-content:center;font-size:1.2rem;border:2px solid var(--border)}
+.testi-name{font-weight:600;font-size:.88rem;color:var(--brown)}
+.testi-label{font-family:'DM Mono',monospace;font-size:.65rem;color:var(--muted);letter-spacing:.05em}
+
+/* ── FAQ ─────────────────────────────── */
+#faq{padding:8rem 4rem;background:var(--cream)}
+.faq-list{max-width:720px;margin:4rem auto 0}
+.faq-item{border-bottom:1.5px solid var(--border);padding:1.5rem 0;cursor:pointer}
+.faq-q{font-family:'Fraunces',serif;font-size:1.1rem;font-weight:700;color:var(--brown);display:flex;justify-content:space-between;align-items:center;gap:1rem}
+.faq-icon{font-size:1.2rem;color:var(--green);transition:transform .3s;flex-shrink:0}
+.faq-item.open .faq-icon{transform:rotate(45deg)}
+.faq-a{font-size:.92rem;color:var(--muted);line-height:1.7;max-height:0;overflow:hidden;transition:max-height .3s ease,padding .3s}
+.faq-item.open .faq-a{max-height:200px;padding-top:.75rem}
+
+/* ── CTA ─────────────────────────────── */
+#cta{padding:8rem 4rem;background:var(--orange);text-align:center;position:relative;overflow:hidden}
+.cta-blob{position:absolute;border-radius:50%;filter:blur(60px);opacity:.2}
+.cta-blob-1{width:400px;height:400px;background:var(--white);top:-150px;right:-100px}
+.cta-blob-2{width:300px;height:300px;background:var(--green);bottom:-100px;left:-80px}
+.cta-title{font-family:'Fraunces',serif;font-size:clamp(36px,6vw,80px);font-weight:900;color:var(--white);line-height:1.05;letter-spacing:-.02em;margin-bottom:1.5rem;position:relative;z-index:2}
+.cta-title em{font-style:italic}
+.cta-sub{font-size:1.1rem;color:rgba(255,255,255,.8);max-width:500px;margin:0 auto 3rem;line-height:1.7;position:relative;z-index:2}
+.cta-actions{display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;position:relative;z-index:2}
+.btn-white-solid{display:inline-flex;align-items:center;gap:.75rem;background:var(--white);color:var(--orange);font-weight:700;font-size:1rem;padding:1.1rem 2.2rem;border-radius:100px;text-decoration:none;transition:all .2s;box-shadow:0 8px 30px rgba(0,0,0,.15)}
+.btn-white-solid:hover{transform:translateY(-2px);box-shadow:0 12px 40px rgba(0,0,0,.2)}
+
+/* ── FOOTER ─────────────────────────── */
+footer{background:var(--green);padding:4rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:2rem}
+.footer-logo{font-family:'Fraunces',serif;font-size:1.4rem;font-weight:900;color:var(--white);display:flex;align-items:center;gap:.4rem}
+.footer-logo span{color:var(--lime)}
+.footer-copy{font-family:'DM Mono',monospace;font-size:.7rem;color:rgba(255,255,255,.4);letter-spacing:.08em}
+.footer-links{display:flex;gap:2rem}
+.footer-links a{font-family:'DM Mono',monospace;font-size:.72rem;color:rgba(255,255,255,.5);text-decoration:none;letter-spacing:.08em;transition:color .2s;text-transform:uppercase}
+.footer-links a:hover{color:var(--lime)}
+
+/* ── REVEAL ──────────────────────────── */
+.reveal{opacity:0;transform:translateY(35px);transition:all .7s ease}
+.reveal.visible{opacity:1;transform:translateY(0)}
+
+/* ── ANIMATIONS ──────────────────────── */
+@keyframes fadeUp{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes floatEmoji{0%,100%{transform:translateY(0) rotate(0deg)}50%{transform:translateY(-18px) rotate(8deg)}}
+@keyframes marquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+/* ── RESPONSIVE ──────────────────────── */
+@media(max-width:1024px){
+  nav{padding:1.2rem 2rem}
+  #hero,section,#faq,#cta{padding:6rem 2rem}
+  .hiw-grid,.sample-inner,.food-grid{grid-template-columns:1fr;gap:3rem}
+  .plans-grid{grid-template-columns:repeat(2,1fr)}
+  .pricing-grid{grid-template-columns:1fr}
+  .personas-grid{grid-template-columns:repeat(2,1fr)}
+  footer{padding:3rem 2rem}
+}
+@media(max-width:768px){
+  nav{padding:1rem 1.5rem}
+  .nav-links,.nav-cta{display:none}
+  .hamburger{display:flex}
+  #hero,section,#faq,#cta{padding:5rem 1.5rem}
+  #forwho,#howitworks,#food,#plans,#sample,#pricing,#testimonials{padding:5rem 1.5rem}
+  .personas-grid,.plans-grid,.testi-grid{grid-template-columns:1fr}
+  .food-grid{grid-template-columns:1fr}
+  .hero-actions{flex-direction:column;align-items:center}
+  .btn-wa,.btn-ghost,.btn-white-solid,.btn-wa{width:100%;justify-content:center}
+  footer{flex-direction:column;text-align:center;padding:3rem 1.5rem}
+  .footer-links{justify-content:center;flex-wrap:wrap;gap:1rem}
+  .hero-emoji-float{display:none}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav id="nav">
+  <a href="#hero" class="nav-logo">Taste<span>Buddie</span> 🥗</a>
+  <ul class="nav-links">
+    <li><a href="#forwho">Who It's For</a></li>
+    <li><a href="#food">Food Coverage</a></li>
+    <li><a href="#plans">Plans</a></li>
+    <li><a href="#pricing">Pricing</a></li>
+    <li><a href="#faq">FAQ</a></li>
+  </ul>
+  <a href="https://wa.me/2341234567890?text=Hi+TasteBuddie!+I+want+a+meal+plan" target="_blank" class="nav-cta">
+    💬 Chat on WhatsApp
+  </a>
+  <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
+</nav>
+
+<!-- MOBILE NAV -->
+<div class="mobile-nav" id="mobileNav">
+  <button class="mobile-nav-close" id="mobileClose">&times;</button>
+  <a href="#forwho">Who It's For</a>
+  <a href="#food">Food Coverage</a>
+  <a href="#plans">Plans</a>
+  <a href="#pricing">Pricing</a>
+  <a href="#faq">FAQ</a>
+  <a href="https://wa.me/2341234567890?text=Hi+TasteBuddie!+I+want+a+meal+plan" target="_blank" style="color:var(--green)">Chat on WhatsApp 💬</a>
+</div>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-blob hero-blob-1"></div>
+  <div class="hero-blob hero-blob-2"></div>
+  <div class="hero-emoji-float">🍛</div>
+  <div class="hero-emoji-float">🥗</div>
+  <div class="hero-emoji-float">🍝</div>
+  <div class="hero-emoji-float">🫙</div>
+  <div class="hero-emoji-float">🥘</div>
+  <div class="hero-tag">AI-Powered Meal Planning by TasteBuddie</div>
+  <h1 class="hero-title">Your Meal Plan.<br><em>Your Goals.</em><br>Your Cravings.</h1>
+  <p class="hero-sub">TasteBuddie builds personalised meal plans for every body, every goal, and every taste — including all your favourite Nigerian dishes. Just chat on WhatsApp.</p>
+  <div class="hero-actions">
+    <a href="https://wa.me/2341234567890?text=Hi+TasteBuddie!+I+want+a+meal+plan" target="_blank" class="btn-wa">
+      <span class="btn-wa-icon">💬</span> Get My Meal Plan Free
+    </a>
+    <a href="#howitworks" class="btn-ghost">See How It Works</a>
+  </div>
+  <div class="hero-social-proof">
+    <div class="proof-avatars">
+      <span>👩🏾</span><span>👨🏿</span><span>👩🏽</span><span>👨🏾</span>
+    </div>
+    <p class="proof-text"><strong>1,000+ Nigerians</strong> already eating right with TasteBuddie</p>
+  </div>
+</section>
+
+<!-- MARQUEE -->
+<div class="marquee-wrap">
+  <div class="marquee">
+    <span class="marquee-item">Jollof Rice 🍚 <span>✦</span></span>
+    <span class="marquee-item">Muscle Gain 💪 <span>✦</span></span>
+    <span class="marquee-item">PCOS-Friendly 🌸 <span>✦</span></span>
+    <span class="marquee-item">Egusi Soup 🫕 <span>✦</span></span>
+    <span class="marquee-item">Weight Loss 🔥 <span>✦</span></span>
+    <span class="marquee-item">Family Meals 👨‍👩‍👧 <span>✦</span></span>
+    <span class="marquee-item">Pasta &amp; Rice 🍝 <span>✦</span></span>
+    <span class="marquee-item">Holiday Menus 🎉 <span>✦</span></span>
+    <span class="marquee-item">Suya &amp; Bole 🔥 <span>✦</span></span>
+    <span class="marquee-item">Cocktails 🍹 <span>✦</span></span>
+    <span class="marquee-item">Diabetes-Friendly 💚 <span>✦</span></span>
+    <span class="marquee-item">Allergy-Aware 🚫 <span>✦</span></span>
+    <span class="marquee-item">Uses What You Have 🧺 <span>✦</span></span>
+    <span class="marquee-item">Jollof Rice 🍚 <span>✦</span></span>
+    <span class="marquee-item">Muscle Gain 💪 <span>✦</span></span>
+    <span class="marquee-item">PCOS-Friendly 🌸 <span>✦</span></span>
+    <span class="marquee-item">Egusi Soup 🫕 <span>✦</span></span>
+    <span class="marquee-item">Weight Loss 🔥 <span>✦</span></span>
+    <span class="marquee-item">Family Meals 👨‍👩‍👧 <span>✦</span></span>
+    <span class="marquee-item">Pasta &amp; Rice 🍝 <span>✦</span></span>
+    <span class="marquee-item">Holiday Menus 🎉 <span>✦</span></span>
+    <span class="marquee-item">Suya &amp; Bole 🔥 <span>✦</span></span>
+    <span class="marquee-item">Cocktails 🍹 <span>✦</span></span>
+    <span class="marquee-item">Diabetes-Friendly 💚 <span>✦</span></span>
+  </div>
+</div>
+
+<!-- FOR WHO -->
+<section id="forwho">
+  <div class="section-eyebrow reveal">Who It&apos;s For</div>
+  <h2 class="section-title reveal">Built for<br><em>every body</em> &amp; every goal</h2>
+  <div class="personas-grid">
+    <div class="persona-card reveal">
+      <span class="persona-emoji">💪</span>
+      <div class="persona-name">The Muscle Builder</div>
+      <p class="persona-desc">High-protein, calorie-surplus meal plans designed to fuel serious gains without boring chicken and rice every day.</p>
+      <div class="persona-tags"><span>High protein</span><span>Calorie surplus</span><span>Meal timing</span></div>
+    </div>
+    <div class="persona-card reveal">
+      <span class="persona-emoji">🌸</span>
+      <div class="persona-name">The Weight Loss Journey</div>
+      <p class="persona-desc">Calorie-deficit plans that actually taste good. No starvation, no deprivation — just smart, satisfying food.</p>
+      <div class="persona-tags"><span>Calorie deficit</span><span>Balanced macros</span><span>Satisfying meals</span></div>
+    </div>
+    <div class="persona-card reveal">
+      <span class="persona-emoji">🩺</span>
+      <div class="persona-name">The PCOS Warrior</div>
+      <p class="persona-desc">Low-GI, anti-inflammatory, hormone-friendly plans specifically curated for women managing PCOS or fibroids.</p>
+      <div class="persona-tags"><span>Low GI</span><span>Anti-inflammatory</span><span>Hormone health</span></div>
+    </div>
+    <div class="persona-card reveal">
+      <span class="persona-emoji">👨‍👩‍👧</span>
+      <div class="persona-name">The Family Chef</div>
+      <p class="persona-desc">Budget-friendly, crowd-pleasing, kid-approved meal plans. Cook once, feed everyone, stress less.</p>
+      <div class="persona-tags"><span>Family-sized</span><span>Budget-friendly</span><span>Variety</span></div>
+    </div>
+    <div class="persona-card reveal">
+      <span class="persona-emoji">🎉</span>
+      <div class="persona-name">The Holiday Host</div>
+      <p class="persona-desc">Christmas menus, birthday spreads, dinner party plans — with cocktails, small chops, and crowd-sized portions.</p>
+      <div class="persona-tags"><span>Occasion menus</span><span>Party portions</span><span>Cocktails</span></div>
+    </div>
+    <div class="persona-card reveal">
+      <span class="persona-emoji">🩸</span>
+      <div class="persona-name">The Health Manager</div>
+      <p class="persona-desc">Specialised plans for diabetes, hypertension, and other conditions — eating well without compromising health.</p>
+      <div class="persona-tags"><span>Diabetes-friendly</span><span>Low sodium</span><span>Condition-specific</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section id="howitworks">
+  <div class="section-eyebrow reveal">How It Works</div>
+  <h2 class="section-title reveal">Three steps to<br><em>eating right</em></h2>
+  <div class="hiw-grid">
+    <div class="hiw-steps reveal">
+      <div class="hiw-step">
+        <div class="step-num">1</div>
+        <div>
+          <div class="step-title">Tell TasteBuddie about you</div>
+          <p class="step-desc">Send a WhatsApp message. TasteBuddie asks about your goals, allergies, health conditions, dietary preferences, your city, what ingredients you already have at home, and how many people you are cooking for.</p>
+        </div>
+      </div>
+      <div class="hiw-step">
+        <div class="step-num">2</div>
+        <div>
+          <div class="step-title">Get your personalised plan</div>
+          <p class="step-desc">TasteBuddie generates a full meal plan built around your goals, allergies, location, and what&apos;s already in your kitchen — daily, weekly, or occasion-based, with recipes for every meal.</p>
+        </div>
+      </div>
+      <div class="hiw-step">
+        <div class="step-num">3</div>
+        <div>
+          <div class="step-title">Cook, eat, and adjust anytime</div>
+          <p class="step-desc">Don&apos;t like a meal? Swap it. Have an allergy to something in a recipe? TasteBuddie removes it and substitutes. Moving to a new city? Update your location and the plan adapts. TasteBuddie works with you, always.</p>
+        </div>
+      </div>
+    </div>
+    <div class="hiw-visual reveal">
+      <div class="chat-header">
+        <div class="chat-avatar">🥗</div>
+        <div>
+          <div class="chat-name">TasteBuddie</div>
+          <div class="chat-status">● Online now</div>
+        </div>
+      </div>
+      <div class="chat-bubble bot">
+        <div class="chat-label">TasteBuddie</div>
+        <p>Hey! 👋 I&apos;m TasteBuddie — your personal meal planner. What&apos;s your main goal right now?</p>
+      </div>
+      <div class="chat-bubble user">
+        <p>I want to lose weight but still eat Nigerian food 😅</p>
+      </div>
+      <div class="chat-bubble bot">
+        <div class="chat-label">TasteBuddie</div>
+        <p>Love it! 🇳🇬 Any allergies I should know? (e.g. nuts, shellfish, dairy)</p>
+      </div>
+      <div class="chat-bubble user">
+        <p>No allergies. I don&apos;t eat pork though!</p>
+      </div>
+      <div class="chat-bubble bot">
+        <div class="chat-label">TasteBuddie</div>
+        <p>Noted — no pork! 🙌 What city are you in? I&apos;ll suggest ingredients easy to find near you.</p>
+      </div>
+      <div class="chat-bubble user">
+        <p>Lagos! And I have tomatoes, chicken, rice and yam at home right now.</p>
+      </div>
+      <div class="chat-bubble bot">
+        <div class="chat-label">TasteBuddie</div>
+        <p>Perfect! ✨ Building your 7-day plan using what you already have — no extra shopping needed for Day 1. Generating now...</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOD COVERAGE -->
+<section id="food">
+  <div class="section-eyebrow reveal">Food Coverage</div>
+  <h2 class="section-title reveal">We speak<br><em>Nigerian</em> &amp; international</h2>
+  <div class="food-grid reveal">
+    <div class="food-panel nigerian">
+      <div class="food-big-emoji">🇳🇬</div>
+      <div class="food-panel-label">Nigerian Cuisine</div>
+      <div class="food-panel-title">All your favourites — healthified</div>
+      <div class="food-items">
+        <span class="food-item">Jollof Rice</span><span class="food-item">Egusi Soup</span>
+        <span class="food-item">Efo Riro</span><span class="food-item">Pepper Soup</span>
+        <span class="food-item">Moi Moi</span><span class="food-item">Pounded Yam</span>
+        <span class="food-item">Afang Soup</span><span class="food-item">Banga Soup</span>
+        <span class="food-item">Akara</span><span class="food-item">Eba &amp; Amala</span>
+        <span class="food-item">Ofada Rice</span><span class="food-item">Suya</span>
+        <span class="food-item">Bole</span><span class="food-item">Puff Puff</span>
+        <span class="food-item">Chin Chin</span><span class="food-item">Small Chops</span>
+        <span class="food-item">Zobo</span><span class="food-item">Kunu</span>
+        <span class="food-item">Chapman</span><span class="food-item">Zobo Cocktails</span>
+      </div>
+    </div>
+    <div class="food-panel international">
+      <div class="food-big-emoji">🌍</div>
+      <div class="food-panel-label">International Cuisine</div>
+      <div class="food-panel-title">Global dishes, local ingredients</div>
+      <div class="food-items">
+        <span class="food-item">Spaghetti Bolognese</span><span class="food-item">Carbonara</span>
+        <span class="food-item">Lasagne</span><span class="food-item">Pesto Pasta</span>
+        <span class="food-item">Mac &amp; Cheese</span><span class="food-item">Fried Rice</span>
+        <span class="food-item">Biryani</span><span class="food-item">Paella</span>
+        <span class="food-item">Rice Bowls</span><span class="food-item">Risotto</span>
+        <span class="food-item">Grilled Chicken</span><span class="food-item">Salmon</span>
+        <span class="food-item">Stir Fry</span><span class="food-item">Caesar Salad</span>
+        <span class="food-item">Wraps &amp; Bowls</span><span class="food-item">Pancakes</span>
+        <span class="food-item">Smoothies</span><span class="food-item">Cocktails</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PLAN TYPES -->
+<section id="plans">
+  <div class="section-eyebrow reveal">Plan Types</div>
+  <h2 class="section-title reveal">A plan for<br><em>every moment</em></h2>
+  <div class="plans-grid">
+    <div class="plan-card reveal">
+      <span class="plan-icon">☀️</span>
+      <div class="plan-name">Daily Plan</div>
+      <p class="plan-desc">Breakfast, lunch, dinner, and snacks for today — with full recipes for each meal.</p>
+    </div>
+    <div class="plan-card reveal">
+      <span class="plan-icon">📅</span>
+      <div class="plan-name">Weekly Plan</div>
+      <p class="plan-desc">A full 7-day plan with variety, balance, and a complete shopping list included.</p>
+    </div>
+    <div class="plan-card reveal">
+      <span class="plan-icon">🍽️</span>
+      <div class="plan-name">One-Time Meal</div>
+      <p class="plan-desc">Need a recipe for tonight&apos;s dinner? TasteBuddie suggests the perfect meal for your goals.</p>
+    </div>
+    <div class="plan-card reveal">
+      <span class="plan-icon">🎊</span>
+      <div class="plan-name">Occasion Plan</div>
+      <p class="plan-desc">Christmas menu, birthday spread, dinner party — with portions, cocktails, and small chops.</p>
+    </div>
+    <div class="plan-card reveal">
+      <span class="plan-icon">🧺</span>
+      <div class="plan-name">Use What I Have</div>
+      <p class="plan-desc">Tell TasteBuddie what&apos;s already in your kitchen and it builds a plan around what you have right now.</p>
+    </div>
+    <div class="plan-card reveal">
+      <span class="plan-icon">🚫</span>
+      <div class="plan-name">Allergy-Safe Plan</div>
+      <p class="plan-desc">List your allergies once — every plan TasteBuddie builds will automatically exclude those ingredients forever.</p>
+    </div>
+  </div>
+</section>
+
+<!-- SAMPLE PLAN -->
+<section id="sample">
+  <div class="sample-inner">
+    <div class="reveal">
+      <div class="sample-label">Sample Plan</div>
+      <h2 class="sample-title">See what a<br>real plan looks like</h2>
+      <p class="sample-desc">This is a sample Monday plan for a woman on a weight loss journey who loves Nigerian food. Every meal comes with a full recipe.</p>
+      <a href="https://wa.me/2341234567890?text=Hi+TasteBuddie!+Build+me+a+meal+plan" target="_blank" class="btn-wa" style="display:inline-flex;margin-top:1rem">
+        <span class="btn-wa-icon">💬</span> Get My Own Plan
+      </a>
+    </div>
+    <div class="sample-card reveal">
+      <div class="sample-day">Monday &nbsp;·&nbsp; Weight Loss &nbsp;·&nbsp; Nigerian</div>
+      <div class="meal-row">
+        <div>
+          <div class="meal-label">Breakfast</div>
+          <div class="meal-name">Akara with Pap (Ogi) 🫓</div>
+        </div>
+        <div class="meal-cal">320 kcal</div>
+      </div>
+      <div class="meal-row">
+        <div>
+          <div class="meal-label">Lunch</div>
+          <div class="meal-name">Efo Riro with Brown Rice 🥬</div>
+        </div>
+        <div class="meal-cal">480 kcal</div>
+      </div>
+      <div class="meal-row">
+        <div>
+          <div class="meal-label">Snack</div>
+          <div class="meal-name">Boiled Groundnuts + Zobo 🥜</div>
+        </div>
+        <div class="meal-cal">180 kcal</div>
+      </div>
+      <div class="meal-row">
+        <div>
+          <div class="meal-label">Dinner</div>
+          <div class="meal-name">Pepper Soup (Goat) + Small Eba 🍲</div>
+        </div>
+        <div class="meal-cal">410 kcal</div>
+      </div>
+      <div class="macro-bar">
+        <div class="macro-item"><div class="macro-val">1,390</div><div class="macro-lbl">Calories</div></div>
+        <div class="macro-item"><div class="macro-val">68g</div><div class="macro-lbl">Protein</div></div>
+        <div class="macro-item"><div class="macro-val">142g</div><div class="macro-lbl">Carbs</div></div>
+        <div class="macro-item"><div class="macro-val">38g</div><div class="macro-lbl">Fat</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section id="pricing">
+  <div class="section-eyebrow reveal">Pricing</div>
+  <h2 class="section-title reveal">Start free.<br><em>Eat better</em> immediately.</h2>
+  <div class="pricing-grid">
+    <div class="pricing-card reveal">
+      <div class="pricing-tier">Free</div>
+      <div class="pricing-price">&#8358;0<span>/month</span></div>
+      <div class="pricing-desc">Perfect for getting started with TasteBuddie.</div>
+      <div class="pricing-border"></div>
+      <div class="pricing-features">
+        <div class="pricing-feature">1 daily meal plan per day</div>
+        <div class="pricing-feature">Basic Nigerian recipes</div>
+        <div class="pricing-feature">Basic international recipes</div>
+        <div class="pricing-feature off">Weekly meal plans</div>
+        <div class="pricing-feature off">Occasion &amp; holiday plans</div>
+        <div class="pricing-feature off">Condition-specific plans</div>
+        <div class="pricing-feature off">Auto shopping list</div>
+      </div>
+      <a href="https://wa.me/2341234567890?text=Hi+TasteBuddie!" target="_blank" class="btn-outline-green">Start Free</a>
+    </div>
+    <div class="pricing-card popular reveal">
+      <div class="popular-badge">Most Popular</div>
+      <div class="pricing-tier">Premium</div>
+      <div class="pricing-price">&#8358;2,500<span>/month</span></div>
+      <div class="pricing-desc">For serious goals and full food freedom.</div>
+      <div class="pricing-border"></div>
+      <div class="pricing-features">
+        <div class="pricing-feature">Unlimited daily meal plans</div>
+        <div class="pricing-feature">Full weekly meal plans</div>
+        <div class="pricing-feature">Full recipe library</div>
+        <div class="pricing-feature">PCOS, diabetes &amp; condition plans</div>
+        <div class="pricing-feature">Family-sized plans</div>
+        <div class="pricing-feature">Occasion &amp; holiday menus</div>
+        <div class="pricing-feature">Auto shopping list</div>
+        <div class="pricing-feature">Meal swap suggestions</div>
+        <div class="pricing-feature off">Nutritionist review</div>
+      </div>
+      <a href="https://wa.me/2341234567890?text=Hi+TasteBuddie!+I+want+Premium" target="_blank" class="btn-white">Get Premium</a>
+    </div>
+    <div class="pricing-card reveal">
+      <div class="pricing-tier">Platinum</div>
+      <div class="pricing-price">&#8358;6,000<span>/month</span></div>
+      <div class="pricing-desc">For those who want expert guidance alongside their plan.</div>
+      <div class="pricing-border"></div>
+      <div class="pricing-features">
+        <div class="pricing-feature">Everything in Premium</div>
+        <div class="pricing-feature">Weekly nutritionist review</div>
+        <div class="pricing-feature">Personalised macro targets</div>
+        <div class="pricing-feature">Priority WhatsApp support</div>
+        <div class="pricing-feature">Monthly progress check-in</div>
+        <div class="pricing-feature">Custom plan adjustments</div>
+      </div>
+      <a href="https://wa.me/2341234567890?text=Hi+TasteBuddie!+I+want+Platinum" target="_blank" class="btn-green">Get Platinum</a>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section id="testimonials">
+  <div class="section-eyebrow reveal">What People Say</div>
+  <h2 class="section-title reveal">Real people.<br><em>Real results.</em></h2>
+  <div class="testi-grid">
+    <div class="testi-card reveal">
+      <div class="testi-stars">⭐⭐⭐⭐⭐</div>
+      <p class="testi-text">&ldquo;I have PCOS and never knew what to eat. TasteBuddie gave me a plan with Nigerian foods I actually love — egusi, efo riro, all of it. My energy has been so much better.&rdquo;</p>
+      <div class="testi-author">
+        <div class="testi-avatar">👩🏾</div>
+        <div>
+          <div class="testi-name">Amaka O.</div>
+          <div class="testi-label">Lagos &nbsp;·&nbsp; PCOS Plan</div>
+        </div>
+      </div>
+    </div>
+    <div class="testi-card reveal">
+      <div class="testi-stars">⭐⭐⭐⭐⭐</div>
+      <p class="testi-text">&ldquo;I&apos;m trying to gain muscle but I was tired of plain chicken. TasteBuddie gave me high-protein Nigerian meals — egusi with extra fish, yam porridge with chicken — actual food I enjoy.&rdquo;</p>
+      <div class="testi-author">
+        <div class="testi-avatar">👨🏿</div>
+        <div>
+          <div class="testi-name">Tunde B.</div>
+          <div class="testi-label">Abuja &nbsp;·&nbsp; Muscle Gain Plan</div>
+        </div>
+      </div>
+    </div>
+    <div class="testi-card reveal">
+      <div class="testi-stars">⭐⭐⭐⭐⭐</div>
+      <p class="testi-text">&ldquo;I used TasteBuddie to plan my Christmas menu for 15 people. It gave me a full spread — jollof, fried rice, small chops, drinks — with quantities for each person. Lifesaver!&rdquo;</p>
+      <div class="testi-author">
+        <div class="testi-avatar">👩🏽</div>
+        <div>
+          <div class="testi-name">Chisom E.</div>
+          <div class="testi-label">Port Harcourt &nbsp;·&nbsp; Holiday Plan</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section id="faq">
+  <div class="section-eyebrow reveal" style="justify-content:center">FAQ</div>
+  <h2 class="section-title reveal" style="text-align:center">Got questions?<br><em>We've got answers.</em></h2>
+  <div class="faq-list">
+    <div class="faq-item reveal">
+      <div class="faq-q">How does TasteBuddie work? <span class="faq-icon">+</span></div>
+      <div class="faq-a">TasteBuddie runs entirely on WhatsApp. You send a message, answer a few quick questions about your goals and preferences, and TasteBuddie generates a personalised meal plan with full recipes — instantly.</div>
+    </div>
+    <div class="faq-item reveal">
+      <div class="faq-q">Does TasteBuddie cover Nigerian food? <span class="faq-icon">+</span></div>
+      <div class="faq-a">Absolutely — Nigerian food is at the heart of TasteBuddie. From jollof rice and egusi soup to suya, zobo cocktails, and chin chin, we have a deep library of local dishes alongside international options.</div>
+    </div>
+    <div class="faq-item reveal">
+      <div class="faq-q">Can TasteBuddie help with PCOS or diabetes? <span class="faq-icon">+</span></div>
+      <div class="faq-a">Yes. TasteBuddie has condition-specific plans for PCOS, diabetes, hypertension, and fibroids — with meals carefully selected to support your health while still being delicious.</div>
+    </div>
+    <div class="faq-item reveal">
+      <div class="faq-q">Can I get a plan for my whole family? <span class="faq-icon">+</span></div>
+      <div class="faq-a">Yes. Tell TasteBuddie how many people you are cooking for and it adjusts portion sizes, ingredient quantities, and the shopping list accordingly.</div>
+    </div>
+    <div class="faq-item reveal">
+      <div class="faq-q">Can I swap meals I don&apos;t like? <span class="faq-icon">+</span></div>
+      <div class="faq-a">Absolutely. Just tell TasteBuddie which meal you want to swap and it will suggest an alternative that matches your goals and preferences.</div>
+    </div>
+    <div class="faq-item reveal">
+      <div class="faq-q">Is the free plan really free? <span class="faq-icon">+</span></div>
+      <div class="faq-a">Yes — the free plan gives you one daily meal plan per day with basic recipes at no cost. You can upgrade to Premium or Platinum for unlimited plans, weekly plans, condition-specific plans, and more.</div>
+    </div>
+    <div class="faq-item reveal">
+      <div class="faq-q">Does TasteBuddie handle food allergies? <span class="faq-icon">+</span></div>
+      <div class="faq-a">Yes. Tell TasteBuddie your allergies once during setup — whether it is nuts, dairy, shellfish, gluten, or anything else — and every single plan it generates will automatically exclude those ingredients. You can also update your allergies anytime.</div>
+    </div>
+    <div class="faq-item reveal">
+      <div class="faq-q">Does my location affect my meal plan? <span class="faq-icon">+</span></div>
+      <div class="faq-a">Yes! TasteBuddie uses your city to suggest ingredients that are easy to find in your local market. A user in Lagos will get different ingredient suggestions than someone in Abuja, Port Harcourt, or abroad.</div>
+    </div>
+    <div class="faq-item reveal">
+      <div class="faq-q">Can TasteBuddie build a plan from what I already have at home? <span class="faq-icon">+</span></div>
+      <div class="faq-a">Absolutely. Just tell TasteBuddie what ingredients you currently have — rice, tomatoes, chicken, yam, whatever — and it will build a meal plan around what you already own, minimising waste and extra shopping.</div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section id="cta">
+  <div class="cta-blob cta-blob-1"></div>
+  <div class="cta-blob cta-blob-2"></div>
+  <h2 class="cta-title reveal">Ready to eat<br><em>exactly right?</em></h2>
+  <p class="cta-sub reveal">Start your free meal plan on WhatsApp in under 2 minutes. No app download. No signup form. Just chat.</p>
+  <div class="cta-actions reveal">
+    <a href="https://wa.me/2341234567890?text=Hi+TasteBuddie!+I+want+a+meal+plan" target="_blank" class="btn-white-solid">
+      💬 Chat TasteBuddie on WhatsApp
+    </a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">Taste<span>Buddie</span> 🥗</div>
+  <div class="footer-copy">© 2026 TasteBuddie. Eat right. Eat well. Eat you.</div>
+  <div class="footer-links">
+    <a href="#forwho">Who It&apos;s For</a>
+    <a href="#food">Food</a>
+    <a href="#pricing">Pricing</a>
+    <a href="#faq">FAQ</a>
+    <a href="https://wa.me/2341234567890" target="_blank">WhatsApp</a>
+  </div>
+</footer>
+
+<script>
+// Nav scroll
+var nav = document.getElementById('nav');
+window.addEventListener('scroll', function(){ nav.classList.toggle('scrolled', window.scrollY > 60); });
+
+// Mobile nav
+var hamburger = document.getElementById('hamburger');
+var mobileNav = document.getElementById('mobileNav');
+var mobileClose = document.getElementById('mobileClose');
+hamburger.addEventListener('click', function(){ mobileNav.classList.add('open'); hamburger.classList.add('open'); document.body.style.overflow='hidden'; });
+mobileClose.addEventListener('click', function(){ mobileNav.classList.remove('open'); hamburger.classList.remove('open'); document.body.style.overflow=''; });
+
+// Smooth scroll
+document.querySelectorAll('a[href^="#"]').forEach(function(a){
+  a.addEventListener('click', function(e){
+    var t = document.querySelector(this.getAttribute('href'));
+    if(!t) return;
+    e.preventDefault();
+    mobileNav.classList.remove('open'); hamburger.classList.remove('open'); document.body.style.overflow='';
+    window.scrollTo({ top: t.getBoundingClientRect().top + window.scrollY - 80, behavior:'smooth' });
+  });
+});
+
+// Reveal on scroll
+var obs = new IntersectionObserver(function(entries){
+  entries.forEach(function(e, i){
+    if(e.isIntersecting){ setTimeout(function(){ e.target.classList.add('visible'); }, i * 70); obs.unobserve(e.target); }
+  });
+}, { threshold: 0.08 });
+document.querySelectorAll('.reveal').forEach(function(el){ obs.observe(el); });
+
+// FAQ accordion
+document.querySelectorAll('.faq-item').forEach(function(item){
+  item.addEventListener('click', function(){
+    var isOpen = this.classList.contains('open');
+    document.querySelectorAll('.faq-item').forEach(function(i){ i.classList.remove('open'); });
+    if(!isOpen) this.classList.add('open');
+  });
+});
+</script>
+</body>
+</html>
